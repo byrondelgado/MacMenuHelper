@@ -39,6 +39,7 @@ cp "$menuhelper_repo/NOTICE.md" "$menuhelper_licences/NOTICE.md"
 ditto "$menuhelper_repo/Licenses" "$menuhelper_licences/Licenses"
 # Resource additions invalidate the containing app's previous signature.
 codesign --force --sign - --options runtime --timestamp=none \
-    --entitlements "$menuhelper_repo/Configs/Local.entitlements" "$menuhelper_app"
+    --entitlements "$menuhelper_repo/Configs/LocalApp.entitlements" "$menuhelper_app"
 codesign --verify --deep --strict --verbose=2 "$menuhelper_app"
+xcrun swift "$menuhelper_repo/scripts/verify-entitlements.swift" "$menuhelper_app"
 printf '\nBuilt local app: %s\n' "$menuhelper_app"

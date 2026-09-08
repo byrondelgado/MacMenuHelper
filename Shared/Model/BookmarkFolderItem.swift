@@ -17,19 +17,12 @@ struct BookmarkFolderItem: FolderItem {
 
     var path: String { url.path }
 
-    init(_ url: URL) {
+    init(_ url: URL) throws {
+        guard url.isFileURL else { throw FileActionSafety.ValidationError.nonFileURL }
         self.url = url
         let result = url.startAccessingSecurityScopedResource()
-        if !result {
-            logger.error("Fail to start access security scoped resource on \(url.path)")
-        }
-        do {
-            bookmark = try url.bookmarkData(options: .withSecurityScope)
-            url.stopAccessingSecurityScopedResource()
-        } catch {
-            print(error.localizedDescription)
-            fatalError()
-        }
+        defer { if result { url.stopAccessingSecurityScopedResource() } }
+        bookmark = try url.bookmarkData(options: .withSecurityScope)
     }
 
     enum CodingKeys: String, CodingKey {
@@ -42,15 +35,10 @@ struct BookmarkFolderItem: FolderItem {
         var isStale = false
         do {
             url = try URL(resolvingBookmarkData: bookmark, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale)
-            let result = url.startAccessingSecurityScopedResource()
-            let path = url.path
-            if !result {
-                logger.error("Fail to start access security scoped resource on \(path)")
-            }
         } catch {
             // Show for the main app
             url = try values.decode(URL.self, forKey: .url)
         }
-        print(url.path)
+        guard url.isFileURL else { throw FileActionSafety.ValidationError.nonFileURL }
     }
 }

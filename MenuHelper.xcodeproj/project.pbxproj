@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BD0100000000000000000001 /* ActionSafety.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0100000000000000000003 /* ActionSafety.swift */; };
+		BD0100000000000000000002 /* ActionSafety.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0100000000000000000003 /* ActionSafety.swift */; };
 		270857DE269449E800EB636C /* MenuItemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27952048268B6A2D00492ABF /* MenuItemStore.swift */; };
 		272986B92711FDAF00EBCCBF /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 272986B82711FDAF00EBCCBF /* OrderedCollections */; };
 		272986BB2711FDCD00EBCCBF /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 272986BA2711FDCD00EBCCBF /* OrderedCollections */; };
@@ -93,6 +95,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BD0100000000000000000003 /* ActionSafety.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSafety.swift; sourceTree = "<group>"; };
 		2727E3112B10F77A000302B5 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
 		2732A5AF27B9558D005DB4A0 /* MenuHelperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MenuHelperUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2732A5B327B9558D005DB4A0 /* MenuHelperUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuHelperUITestsLaunchTests.swift; sourceTree = "<group>"; };
@@ -198,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				27421A9B271FF10400A0BD28 /* StringExtension.swift */,
+				BD0100000000000000000003 /* ActionSafety.swift */,
 				27421A93271FCABF00A0BD28 /* Channel */,
 				27952047268B6A1200492ABF /* ViewModel */,
 				27952046268B6A0C00492ABF /* Model */,
@@ -523,6 +527,7 @@
 				27952043268B5F1100492ABF /* MenuSettingTab.swift in Sources */,
 				27CC3F2F272038F2000A6005 /* SyncFolderItem.swift in Sources */,
 				27421A9C271FF10400A0BD28 /* StringExtension.swift in Sources */,
+				BD0100000000000000000001 /* ActionSafety.swift in Sources */,
 				2746558B27B90A6400DC2F91 /* SupportWindow.swift in Sources */,
 				27952041268B5F0700492ABF /* FolderSettingTab.swift in Sources */,
 				27F15ED5271298690042944A /* FolderItemStore.swift in Sources */,
@@ -558,6 +563,7 @@
 				270857DE269449E800EB636C /* MenuItemStore.swift in Sources */,
 				279C37652711912F00436979 /* FinderSync+UserDefaults.swift in Sources */,
 				27421A9D271FF10400A0BD28 /* StringExtension.swift in Sources */,
+				BD0100000000000000000002 /* ActionSafety.swift in Sources */,
 				27421A9A271FCB1A00A0BD28 /* FinderCommChannel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

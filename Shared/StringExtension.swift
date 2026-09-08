@@ -37,9 +37,26 @@ enum CopyOption: Int, CustomStringConvertible, CaseIterable, Identifiable {
     var description: String {
         switch self {
         case .origin: return String(localized: "Use origin path")
-        case .escape: return String(localized: "Escape \" \" with \"\\ \" ")
-        case .quoto: return String(localized: "Wrap entire path with \"\"")
+        case .escape: return String(localized: "Escape for shell")
+        case .quoto: return String(localized: "Quote for shell")
         }
+    }
+
+    func format(_ value: String) -> String {
+        func quoted() -> String { "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'" }
+        switch self {
+        case .origin: return value
+        case .quoto: return quoted()
+        case .escape:
+            guard !value.isEmpty, value.rangeOfCharacter(from: .controlCharacters) == nil else { return quoted() }
+            let safe = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/_-.")
+            return value.unicodeScalars.map { safe.contains($0) ? String($0) : "\\" + String($0) }.joined()
+        }
+    }
+
+    func join(_ values: [String], separator: String) -> String {
+        // A custom separator must not reintroduce shell operators between safe words.
+        values.map(format).joined(separator: self == .origin ? separator : " ")
     }
 }
 

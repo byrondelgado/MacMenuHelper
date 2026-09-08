@@ -156,8 +156,9 @@ struct GeneralSettingTab: View {
                 prompt: Text(#"Default is " ""#),
                 axis: .horizontal
             ) {
-                Text("Join-separator when multi items are seleted")
+                Text("Separator for literal copy")
             }
+            .disabled(copyOption != .origin)
             Picker(selection: $copyOption, label: Text("Copy Style")) {
                 ForEach(CopyOption.allCases) { option in
                     Text(option.description).tag(option)

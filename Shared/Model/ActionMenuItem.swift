@@ -8,21 +8,29 @@
 import AppKit
 import Foundation
 
-struct ActionMenuItem: MenuItem {
+struct ActionMenuItem: MenuItem, Sendable {
     static func == (lhs: ActionMenuItem, rhs: ActionMenuItem) -> Bool {
-        lhs.name == rhs.name
+        lhs.key == rhs.key
     }
+
+    func hash(into hasher: inout Hasher) { hasher.combine(key) }
+
+    // Stored indexes are legacy data, not authority to choose another operation.
+    var safeActionIndex: Int? { Self.all.first(where: { $0.key == key })?.actionIndex }
 
     var key: String
     var name: String { String(localized: String.LocalizationValue(key)) }
     var enabled = true
     var actionIndex: Int
 
-    var icon: NSImage { NSImage(named: "icon")! }
+    var icon: NSImage {
+        let symbols = ["Copy Path": "doc.on.clipboard", "Copy File Name": "textformat", "Go Parent Directory": "folder", "New File": "doc.badge.plus"]
+        return NSImage(systemSymbolName: symbols[key] ?? "questionmark.square", accessibilityDescription: name) ?? NSImage()
+    }
 }
 
 extension ActionMenuItem {
-    static var all: [ActionMenuItem] = [.copyPath, copyFileName, .goParent, .newFile]
+    static let all: [ActionMenuItem] = [.copyPath, copyFileName, .goParent, .newFile]
 
     static let copyPath = ActionMenuItem(key: "Copy Path", actionIndex: 0)
     static let copyFileName = ActionMenuItem(key: "Copy File Name", actionIndex: 1)

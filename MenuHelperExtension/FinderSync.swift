@@ -16,14 +16,19 @@ let channel = FinderCommChannel()
 private let logger = Logger(subsystem: subsystem, category: "menu")
 
 class FinderSync: FIFinderSync {
+    private enum Command: Sendable {
+        case application(AppMenuItem)
+        case action(ActionMenuItem)
+    }
+    private let commands = MenuCommandRegistry<Command>()
+
     override init() {
         super.init()
         // Populate the store before Finder requests its first contextual menu.
         menuStore.refresh()
         channel.setup()
-        logger.notice("FinderSync() launched from \(Bundle.main.bundlePath, privacy: .public)")
+        logger.notice("Finder extension started")
         FIFinderSyncController.default().directoryURLs = Set(folderStore.syncItems.map { URL(fileURLWithPath: $0.path) })
-        logger.notice("Init sync directory is \(folderStore.syncItems.map(\.path).joined(separator: "\n"), privacy: .public)")
 
         // Monitor volumes
         NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didMountNotification, object: nil, queue: .main) { notification in
@@ -74,6 +79,11 @@ class FinderSync: FIFinderSync {
         let menu = NSMenu(title: appDisplayName)
         menu.showsStateColumn = true
 
+        let snapshot = menuStore.snapshot()
+        let entries = commands.register(
+            snapshot.appItems.filter(\.enabled).map(Command.application)
+            + snapshot.actionItems.filter { $0.enabled && $0.safeActionIndex != nil }.map(Command.action)
+        )
         let applicationMenu: NSMenu
         if UserDefaults.group.showSubMenuForApplication {
             applicationMenu = NSMenu()
@@ -83,13 +93,14 @@ class FinderSync: FIFinderSync {
         } else {
             applicationMenu = menu
         }
-        for item in menuStore.appItems.filter(\.enabled) {
+        for entry in entries {
+            guard case let .application(item) = entry.value else { continue }
             let menuItem = NSMenuItem()
             menuItem.target = self
             menuItem.title = String(format: String(localized: "Open in %@", comment: "Open in the given application"), item.name)
             menuItem.action = #selector(menuAction(_:))
             menuItem.toolTip = "\(item.name)"
-            menuItem.tag = 0
+            menuItem.tag = entry.tag
             if menuKind == .toolbarItemMenu {
                 menuItem.image = item.icon
             }
@@ -105,13 +116,14 @@ class FinderSync: FIFinderSync {
         } else {
             actionMenu = menu
         }
-        for item in menuStore.actionItems.filter(\.enabled) {
+        for entry in entries {
+            guard case let .action(item) = entry.value else { continue }
             let menuItem = NSMenuItem()
             menuItem.target = self
             menuItem.title = item.name
             menuItem.action = #selector(menuAction(_:))
             menuItem.toolTip = "\(item.name)"
-            menuItem.tag = 1
+            menuItem.tag = entry.tag
             if menuKind == .toolbarItemMenu {
                 menuItem.image = item.icon
             }
@@ -135,8 +147,11 @@ class FinderSync: FIFinderSync {
     private func openAppSettings(_ sender: NSMenuItem) {
         guard let url = URL(string: "finder-menu-tools://settings") else { return }
         logger.notice("Requesting the Settings window")
-        if !NSWorkspace.shared.open(url) {
-            logger.error("Unable to open Finder Menu Tools settings")
+        let appURL = Bundle.main.bundleURL.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        guard appURL.pathExtension == "app" else { return }
+        // Target our containing app, not whichever app registered the URL scheme.
+        NSWorkspace.shared.open([url], withApplicationAt: appURL, configuration: .init()) { _, error in
+            if error != nil { logger.error("Unable to open Finder Menu Tools settings") }
         }
     }
 
@@ -144,18 +159,15 @@ class FinderSync: FIFinderSync {
     func menuAction(_ menuItem: NSMenuItem) {
         guard let targetURL = FIFinderSyncController.default().targetedURL(),
               let itemURLs = FIFinderSyncController.default().selectedItemURLs() else { return }
-        logger.notice("Click menu \"\(menuItem.title, privacy: .public)\", index = \(menuItem.tag, privacy: .public), target = \(targetURL, privacy: .public), items = \(itemURLs, privacy: .public)]")
-
         let urls = itemURLs.isEmpty ? [targetURL] : itemURLs
-        switch menuItem.tag {
-        case 0:
-            let item = menuStore.getAppItem(name: menuItem.title)
-            item?.menuClick(with: urls)
-        case 1:
-            let item = menuStore.getActionItem(name: menuItem.title)
-            item?.menuClick(with: urls)
-        default:
-            break
+        guard urls.allSatisfy(\.isFileURL) else { return }
+        logger.notice("Dispatching a menu action for \(urls.count) items")
+        guard let command = commands.value(for: menuItem.tag) else { return }
+        Task { @MainActor in
+            switch command {
+            case let .application(item): item.menuClick(with: urls)
+            case let .action(item): item.menuClick(with: urls)
+            }
         }
     }
 }

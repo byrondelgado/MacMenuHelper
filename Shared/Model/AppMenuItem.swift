@@ -9,7 +9,7 @@ import AppKit
 import Foundation
 import OrderedCollections
 
-struct AppMenuItem: MenuItem {
+struct AppMenuItem: MenuItem, Sendable {
     init(appURL url: URL) {
         self.url = url
         itemName = url.deletingPathExtension().lastPathComponent

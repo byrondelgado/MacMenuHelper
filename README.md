@@ -115,3 +115,15 @@ The Xcode target names and bundle identifiers retain their earlier technical
 names so existing fork settings continue to work. They do not identify this as
 an upstream release. Build and packaging details are in
 [the release guide](docs/RELEASING.md), with [validation coverage](docs/VALIDATION.md).
+
+## Security
+
+Use the latest release. Version 4.0.2 hardens file creation, shell-copy formatting,
+logging, permission lifetime and menu dispatch. New File will fail if the name
+already exists, rather than replacing data. Shell copy formats separate multiple
+items with spaces; the custom separator applies only to literal copy.
+
+See [the security policy](SECURITY.md) and [the review and regression coverage](docs/SECURITY-REVIEW.md).
+Run `./scripts/test-security.sh` to exercise the production safety helpers. The
+review does not guarantee that all vulnerabilities have been eliminated; the
+free distribution remains ad hoc signed and unnotarised.

@@ -12,7 +12,7 @@ ad hoc signed and not notarised.
    upstream `LICENSE.txt` and original copyright notices intact. Use the fork's
    own display name and icon, and credit Kyle-Ye clearly.
 3. Review and commit the source changes. Confirm `git status --short` is clean.
-4. Build from that commit:
+4. Run `./scripts/test-security.sh`, then build from that commit:
 
    ```sh
    ./scripts/package-release.sh
@@ -25,6 +25,8 @@ ad hoc signed and not notarised.
 
 ## Verify
 
+- The build invokes `scripts/verify-entitlements.swift` and fails if the app or
+  extension has unexpected privileges or lacks the hardened runtime.
 - Check the ZIP's SHA-256 checksum from the `dist` directory.
 - Extract the ZIP into a temporary directory and run `codesign --verify --deep
   --strict` on the extracted app. Confirm the app and extension both contain
@@ -40,18 +42,18 @@ ad hoc signed and not notarised.
 ## Publish
 
 Push the reviewed commit and an annotated version tag to this fork. Verify that
-the tag points to the commit used to build the assets. For example, for v4.0.1:
+the tag points to the commit used to build the assets. For example, for v4.0.2:
 
 ```sh
-git tag -a v4.0.1 -m 'Finder Menu Tools 4.0.1'
-git push origin main v4.0.1
-gh release create v4.0.1 \
-  dist/FinderMenuTools-4.0.1-macos-universal.zip \
-  dist/FinderMenuTools-4.0.1-macos-universal.zip.sha256 \
+git tag -a v4.0.2 -m 'Finder Menu Tools 4.0.2'
+git push origin main v4.0.2
+gh release create v4.0.2 \
+  dist/FinderMenuTools-4.0.2-macos-universal.zip \
+  dist/FinderMenuTools-4.0.2-macos-universal.zip.sha256 \
   --repo byrondelgado/MacMenuHelper \
   --verify-tag \
-  --title 'Finder Menu Tools 4.0.1 — maintenance fixes' \
-  --notes-file docs/releases/v4.0.1.md
+  --title 'Finder Menu Tools 4.0.2 — maintenance fixes' \
+  --notes-file docs/releases/v4.0.2.md
 ```
 
 Use `--draft` when preparing a release that should not yet be public. Attach only

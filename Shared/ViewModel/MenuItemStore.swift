@@ -11,6 +11,22 @@ import SwiftUI
 @Observable
 class MenuItemStore {
     @ObservationIgnored private var isLoading = false
+    @ObservationIgnored private let snapshotLock = NSLock()
+    @ObservationIgnored private var currentSnapshot = Snapshot(appItems: [], actionItems: [])
+
+    struct Snapshot: Sendable {
+        let appItems: [AppMenuItem]
+        let actionItems: [ActionMenuItem]
+    }
+
+    func snapshot() -> Snapshot {
+        snapshotLock.withLock { currentSnapshot }
+    }
+
+    private func publishSnapshot() {
+        let value = Snapshot(appItems: appItems, actionItems: actionItems)
+        snapshotLock.withLock { currentSnapshot = value }
+    }
 
     var appItems: [AppMenuItem] = [] {
         didSet {
@@ -110,16 +126,6 @@ class MenuItemStore {
         try? save()
     }
 
-    // MARK: - Get Item
-
-    func getAppItem(name: String) -> AppMenuItem? {
-        appItems.first { name.contains($0.name) }
-    }
-
-    func getActionItem(name: String) -> ActionMenuItem? {
-        actionItems.first { $0.name == name }
-    }
-
     // MARK: - Update Item
 
     func updateAppItem(item: AppMenuItem, index: Int?) {
@@ -149,9 +155,11 @@ class MenuItemStore {
             actionItems = ActionMenuItem.all
             try save()
         }
+        publishSnapshot()
     }
 
     private func save() throws {
+        publishSnapshot()
         let encoder = PropertyListEncoder()
         let appItemsData = try encoder.encode(OrderedSet(appItems))
         let actionItemsData = try encoder.encode(OrderedSet(actionItems))

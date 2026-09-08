@@ -25,7 +25,7 @@ You do not need Xcode, a developer account or a subscription to use it.
 Right-click a file or folder in Finder to use these commands. Right-click the
 window background to act on the current folder. Choose **Finder Menu Tools
 Settings…** from the same menu to open the app’s Settings window. **Copy Path** copies an absolute
-path; the copy style and separator for multiple selections are configurable in
+path; the copy style and literal-copy separator for multiple selections are configurable in
 **Settings → General**.
 
 **Finder Sync Directories** determines where the menu appears. **User Selected
@@ -55,7 +55,7 @@ Download the matching `.zip.sha256` asset into the same folder as the ZIP. In
 Terminal, change to that folder and run (substituting the version downloaded):
 
 ```sh
-shasum -a 256 -c FinderMenuTools-4.0.1-macos-universal.zip.sha256
+shasum -a 256 -c FinderMenuTools-4.0.2-macos-universal.zip.sha256
 ```
 
 The result should be `OK`. The checksum checks that the file matches the release;
@@ -74,3 +74,15 @@ Finder Menu Tools is an unofficial maintenance fork of
 [MenuHelper by Kyle-Ye](https://github.com/Kyle-Ye/MenuHelper), offered under
 FSL-1.1-MIT. The download includes `LICENSE.txt`, `NOTICE.md` and dependency
 licences. Copies also travel with the app in **Contents → Resources → Licenses**.
+
+## Safer file and clipboard actions
+
+New File creates a new, private file and never replaces an existing file or link.
+If the chosen name already exists, select another name in Settings. Names must be
+single file names, without directory separators or control characters.
+
+Literal copy preserves the text. The shell formats escape or quote special
+characters and separate multiple items with spaces. Their formatting does not
+replace the target program's own option handling; use `--` where appropriate.
+Removing a saved folder releases managed bookmark scopes but does not reset
+independent macOS privacy grants. See [the security policy](../SECURITY.md).

@@ -11,57 +11,49 @@ import os.log
 
 private let logger = Logger(subsystem: subsystem, category: "menu_click")
 
+@MainActor
 protocol MenuItemClickable {
     func menuClick(with urls: [URL])
 }
 
 extension AppMenuItem: MenuItemClickable {
     func menuClick(with urls: [URL]) {
-        Task {
+        guard !urls.isEmpty, urls.allSatisfy(\.isFileURL) else {
+            NSAlert(error: FileActionSafety.ValidationError.nonFileURL).runModal()
+            return
+        }
+        guard url.isFileURL, url.pathExtension.lowercased() == "app" else {
+            NSAlert(error: FileActionSafety.ValidationError.invalidApplication).runModal()
+            return
+        }
+        Task { @MainActor in
             do {
                 let config = NSWorkspace.OpenConfiguration()
                 config.promptsUserIfNeeded = true
-                config.arguments = arguments + UserDefaults.group.globalApplicationArguments
-                config.environment = environment.merging(UserDefaults.group.globalApplicationEnvironment, uniquingKeysWith: { old, _ in old })
-                let application = try await NSWorkspace.shared.open(urls, withApplicationAt: url, configuration: config)
-                if let path = application.bundleURL?.path,
-                   let identifier = application.bundleIdentifier,
-                   let date = application.launchDate {
-                    logger.notice("Success: open \(identifier, privacy: .public) app at \(path, privacy: .public) in \(date, privacy: .public)")
-                }
+                config.arguments = arguments + (inheritFromGlobalArguments ? UserDefaults.group.globalApplicationArguments : [])
+                config.environment = inheritFromGlobalEnvironment
+                    ? environment.merging(UserDefaults.group.globalApplicationEnvironment, uniquingKeysWith: { old, _ in old })
+                    : environment
+                _ = try await NSWorkspace.shared.open(urls, withApplicationAt: url, configuration: config)
+                logger.notice("Application opened successfully")
             } catch {
-                guard let error = error as? CocoaError,
-                      let underlyingError = error.userInfo["NSUnderlyingError"] as? NSError else { return }
-                logger.error("Error: \(error.localizedDescription)")
-                Task { @MainActor in
-                    if underlyingError.code == -10820 {
-                        let alert = NSAlert(error: error)
-                        alert.addButton(withTitle: String(localized: "OK", comment: "OK button"))
-                        alert.addButton(withTitle: String(localized: "Remove", comment: "Remove app button"))
-                        let response = alert.runModal()
-                        logger.notice("NSAlert response result \(response.rawValue)")
-                        switch response {
-                        case .alertFirstButtonReturn:
-                            logger.notice("Dismiss error with OK")
-                        case .alertSecondButtonReturn:
-                            logger.notice("Dismiss error with Remove app")
-                            if let index = menuStore.appItems.firstIndex(of: self) {
-                                menuStore.deleteAppItems(offsets: IndexSet(integer: index))
-                            }
-                        default:
-                            break
-                        }
-                    } else {
-                        let panel = NSOpenPanel()
-                        panel.allowsMultipleSelection = true
-                        panel.allowedContentTypes = [.folder]
-                        panel.canChooseDirectories = true
-                        panel.directoryURL = URL(fileURLWithPath: urls[0].path)
-                        let response = await panel.begin()
-                        logger.notice("NSOpenPanel response result \(response.rawValue)")
-                        if response == .OK {
-                            folderStore.appendItems(panel.urls.map { BookmarkFolderItem($0) })
-                        }
+                let nsError = error as NSError
+                logger.error("Application launch failed: \(nsError.domain, privacy: .public) code \(nsError.code)")
+                guard FileActionSafety.isPermissionError(nsError), let first = urls.first else {
+                    NSAlert(error: error).runModal()
+                    return
+                }
+                let panel = NSOpenPanel()
+                panel.message = String(localized: "Choose a folder to allow Finder Menu Tools to open its files.")
+                panel.allowsMultipleSelection = true
+                panel.canChooseFiles = false
+                panel.canChooseDirectories = true
+                panel.directoryURL = first.hasDirectoryPath ? first : first.deletingLastPathComponent()
+                if await panel.begin() == .OK {
+                    do {
+                        folderStore.appendItems(try panel.urls.map { try BookmarkFolderItem($0) })
+                    } catch {
+                        NSAlert(error: error).runModal()
                     }
                 }
             }
@@ -70,47 +62,21 @@ extension AppMenuItem: MenuItemClickable {
 }
 
 extension ActionMenuItem: MenuItemClickable {
-    static let actions: [([URL]) -> ActionMenuResult] = [
+    @MainActor private static let actions: [([URL]) -> ActionMenuResult] = [
         { urls in
             let board = NSPasteboard.general
             board.clearContents()
-            let string = urls
-                .map(\.path)
-                .map {
-                    let option = UserDefaults.group.copyOption
-                    switch option {
-                    case .origin:
-                        return $0
-                    case .escape:
-                        return $0.replacingOccurrences(of: " ", with: #"\ "#)
-                    case .quoto:
-                        return "\"\($0)\""
-                    }
-                }
-                .joined(separator: UserDefaults.group.copySeparator)
+            let string = UserDefaults.group.copyOption.join(urls.map(\.path), separator: UserDefaults.group.copySeparator)
             let success = board.setString(string, forType: .string)
 
-            return ActionMenuResult(success: success, message: "Pasteboard setString to \(string)")
+            return ActionMenuResult(success: success, message: "Copied \(urls.count) items")
         },
         { urls in
             let board = NSPasteboard.general
             board.clearContents()
-            let string = urls
-                .map(\.lastPathComponent)
-                .map {
-                    let option = UserDefaults.group.copyOption
-                    switch option {
-                    case .origin:
-                        return $0
-                    case .escape:
-                        return $0.replacingOccurrences(of: " ", with: #"\ "#)
-                    case .quoto:
-                        return "\"\($0)\""
-                    }
-                }
-                .joined(separator: UserDefaults.group.copySeparator)
+            let string = UserDefaults.group.copyOption.join(urls.map(\.lastPathComponent), separator: UserDefaults.group.copySeparator)
             let success = board.setString(string, forType: .string)
-            return ActionMenuResult(success: success, message: "Pasteboard setString to \(string)")
+            return ActionMenuResult(success: success, message: "Copied \(urls.count) items")
         },
         { urls in
             let subResults = urls.map { url in
@@ -121,30 +87,30 @@ extension ActionMenuItem: MenuItemClickable {
         },
         { urls in
             let subResults = urls.map { url in
-                let name = UserDefaults.group.newFileName
-                let fileExtension = UserDefaults.group.newFileExtension.rawValue
-                let manager = FileManager.default
-                let target: URL
-                if manager.directoryExists(atPath: url.path) {
-                    target = url
-                        .appendingPathComponent(name)
-                        .appendingPathExtension(fileExtension)
-                } else {
-                    target = url
-                        .deletingLastPathComponent()
-                        .appendingPathComponent(name)
-                        .appendingPathExtension(fileExtension)
+                do {
+                    let extensionOption = UserDefaults.group.newFileExtension
+                    _ = try FileActionSafety.createEmptyFile(
+                        for: url,
+                        name: UserDefaults.group.newFileName,
+                        fileExtension: extensionOption == .none ? nil : extensionOption.rawValue
+                    )
+                    return ActionMenuResult(success: true)
+                } catch {
+                    NSAlert(error: error).runModal()
+                    return ActionMenuResult(success: false, message: "Could not create a new file")
                 }
-                logger.notice("Trying to create empty file at \(target.path, privacy: .public)")
-                let success = FileManager.default.createFile(atPath: target.path, contents: Data(), attributes: nil)
-                return ActionMenuResult(success: success)
             }
             return ActionMenuResult(success: subResults.allSatisfy(\.success), subResults: subResults)
         },
     ]
 
     func menuClick(with urls: [URL]) {
-        let result = ActionMenuItem.actions[actionIndex](urls)
+        guard !urls.isEmpty, urls.allSatisfy(\.isFileURL),
+              let index = safeActionIndex, Self.actions.indices.contains(index) else {
+            logger.error("Rejected an invalid action or selection")
+            return
+        }
+        let result = Self.actions[index](urls)
         if result.success {
             logger.notice("\(result.description, privacy: .public)")
         } else {
@@ -170,17 +136,5 @@ struct ActionMenuResult: CustomStringConvertible {
             result.append("\n")
         }
         return result
-    }
-}
-
-extension FileManager {
-    fileprivate func directoryExists(atPath path: String) -> Bool {
-        fileExists(atPath: path, isDirectory: true)
-    }
-
-    private func fileExists(atPath path: String, isDirectory: Bool) -> Bool {
-        var isDirectoryBool = ObjCBool(isDirectory)
-        let exists = fileExists(atPath: path, isDirectory: &isDirectoryBool)
-        return exists && (isDirectoryBool.boolValue == isDirectory)
     }
 }

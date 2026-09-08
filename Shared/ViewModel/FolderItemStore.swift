@@ -13,8 +13,11 @@ import SwiftUI
 private let logger = Logger(subsystem: subsystem, category: "folder_item_store")
 
 @Observable
-final class FolderItemStore: Sendable {
-    private(set) var bookmarkItems: [BookmarkFolderItem] = []
+final class FolderItemStore {
+    @ObservationIgnored private let resourceAccess = SecurityScopedResourceAccess()
+    private(set) var bookmarkItems: [BookmarkFolderItem] = [] {
+        didSet { resourceAccess.update(bookmarkItems.map(\.url)) }
+    }
     private(set) var syncItems: [SyncFolderItem] = []
 
     // MARK: - Init
@@ -87,22 +90,18 @@ final class FolderItemStore: Sendable {
         try? save()
     }
 
-    func deleteAllBookmarkItems() {
+    @MainActor func deleteAllBookmarkItems() {
         withAnimation {
             bookmarkItems.removeAll()
         }
-        Task.detached {
-            try await self.save()
-        }
+        try? save()
     }
 
-    func deleteAllSyncItems() {
+    @MainActor func deleteAllSyncItems() {
         withAnimation {
             syncItems.removeAll()
         }
-        Task.detached {
-            try await self.save()
-        }
+        try? save()
     }
 
     // MARK: - UserDefaults
@@ -116,12 +115,12 @@ final class FolderItemStore: Sendable {
             let syncItems = try decoder.decode([SyncFolderItem].self, from: syncItemData)
             self.syncItems = syncItems
             FIFinderSyncController.default().directoryURLs = Set(syncItems.map { URL(fileURLWithPath: $0.path) })
-            logger.notice("Sync directory set to \(syncItems.map(\.path).joined(separator: "\n"), privacy: .public)")
+            logger.notice("Monitoring \(syncItems.count) directories")
         } else {
             let syncItems = SyncFolderItem.defaultFolders
             self.syncItems = syncItems
             FIFinderSyncController.default().directoryURLs = Set(syncItems.map { URL(fileURLWithPath: $0.path) })
-            logger.notice("Sync directory set to \(syncItems.map(\.path).joined(separator: "\n"), privacy: .public)")
+            logger.notice("Monitoring \(syncItems.count) directories")
         }
     }
 

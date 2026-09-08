@@ -40,8 +40,12 @@ class FinderCommChannel {
             panel.directoryURL = URL(fileURLWithPath: "/Users")
         }
         if panel.runModal() == .OK {
-            folderStore.appendItems(panel.urls.map { BookmarkFolderItem($0) })
-            send(name: "AppRefreshFolderItems", data: nil)
+            do {
+                folderStore.appendItems(try panel.urls.map { try BookmarkFolderItem($0) })
+                send(name: "AppRefreshFolderItems", data: nil)
+            } catch {
+                NSAlert(error: error).runModal()
+            }
         }
     }
 
