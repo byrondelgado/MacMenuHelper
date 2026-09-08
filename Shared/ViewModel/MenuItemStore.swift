@@ -10,14 +10,16 @@ import SwiftUI
 
 @Observable
 class MenuItemStore {
+    @ObservationIgnored private var isLoading = false
+
     var appItems: [AppMenuItem] = [] {
         didSet {
-            try? save()
+            if !isLoading { try? save() }
         }
     }
     var actionItems: [ActionMenuItem] = [] {
         didSet {
-            try? save()
+            if !isLoading { try? save() }
         }
     }
 
@@ -132,14 +134,20 @@ class MenuItemStore {
     // MARK: - UserDefaults
 
     private func load() throws {
+        // A refresh must not publish another change notification to every process.
+        isLoading = true
+        defer { isLoading = false }
         if let appItemsData = UserDefaults.group.data(forKey: "APP_ITEMS"),
            let actionItemsData = UserDefaults.group.data(forKey: "ACTION_ITEMS") {
             let decoder = PropertyListDecoder()
-            appItems = try decoder.decode([AppMenuItem].self, from: appItemsData)
-            actionItems = try decoder.decode([ActionMenuItem].self, from: actionItemsData)
+            let loadedApps = try decoder.decode([AppMenuItem].self, from: appItemsData)
+            let loadedActions = try decoder.decode([ActionMenuItem].self, from: actionItemsData)
+            appItems = loadedApps
+            actionItems = loadedActions
         } else {
             appItems = AppMenuItem.defaultApps
             actionItems = ActionMenuItem.all
+            try save()
         }
     }
 
@@ -155,10 +163,25 @@ class MenuItemStore {
 
 extension UserDefaults {
     static let group: UserDefaults = {
+        if let domain = Bundle.main.object(forInfoDictionaryKey: "MenuHelperPreferencesDomain") as? String,
+           !domain.isEmpty {
+            return configuredDefaults(suiteName: domain)
+        }
         #if DEBUG
-        UserDefaults(suiteName: "VB7MJ8R223.top.kyleye.MenuHelperDebug")!
+        return configuredDefaults(suiteName: "VB7MJ8R223.top.kyleye.MenuHelperDebug")
         #else
-        UserDefaults(suiteName: "VB7MJ8R223.top.kyleye.MenuHelper")!
+        return configuredDefaults(suiteName: "VB7MJ8R223.top.kyleye.MenuHelper")
         #endif
     }()
+
+    private static func configuredDefaults(suiteName: String) -> UserDefaults {
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.register(defaults: [
+            Key.showToolbarItemMenu: true,
+            Key.showContextualMenuForItem: true,
+            Key.showContextualMenuForContainer: true,
+            Key.showContextualMenuForSidebar: true,
+        ])
+        return defaults
+    }
 }

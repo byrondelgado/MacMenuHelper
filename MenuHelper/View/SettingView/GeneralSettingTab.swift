@@ -67,7 +67,7 @@ struct GeneralSettingTab: View {
     @AppStorage(Key.copySeparator)
     private var copySeparator = ""
     @AppStorage(Key.copyOption)
-    private var copyOption = CopyOption.escape
+    private var copyOption = CopyOption.origin
     @AppStorage(Key.newFileName)
     private var newFileName = ""
     @AppStorage(Key.newFileExtension)

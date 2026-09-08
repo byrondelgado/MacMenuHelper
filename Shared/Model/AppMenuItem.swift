@@ -44,10 +44,11 @@ extension AppMenuItem {
 
     static let xcode = AppMenuItem(bundleIdentifier: "com.apple.dt.Xcode")
     static let vscode = AppMenuItem(bundleIdentifier: "com.microsoft.VSCode")
+    static let warp = AppMenuItem(bundleIdentifier: "dev.warp.Warp-Stable")
     static let terminal = AppMenuItem(bundleIdentifier: "com.apple.Terminal")
     static let typora = AppMenuItem(bundleIdentifier: "abnerworks.Typora")
     static let tower = AppMenuItem(bundleIdentifier: "com.fournova.Tower3")
     static var defaultApps: [AppMenuItem] {
-        [.terminal, .xcode, .vscode, .typora, .tower].compactMap { $0 }
+        [.warp, .vscode, .terminal, .xcode, .typora, .tower].compactMap { $0 }
     }
 }

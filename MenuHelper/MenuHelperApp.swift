@@ -19,6 +19,7 @@ struct MenuHelperApp: App {
         .windowToolbarLabelStyle(fixed: .iconOnly)
         .defaultSize(width: 600, height: 400)
         .defaultPosition(.center)
+        .handlesExternalEvents(matching: Set(["settings"]))
         .commands {
             CommandGroup(replacing: .newItem) {}
         }
@@ -52,7 +53,7 @@ struct MenuHelperApp: App {
         .handlesExternalEvents(matching: Set(arrayLiteral: "support"))
         .commands {
             CommandGroup(after: .appSettings) {
-                Button("Support Author...") {
+                Button("Original Author...") {
                     openWindow(id: "support")
                 }
             }
@@ -66,4 +67,3 @@ struct MenuHelperApp: App {
 }
 
 let channel = AppCommChannel()
-

@@ -1,58 +1,58 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "CFBundleDisplayName" : {
-      "comment" : "Bundle display name",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "MenuHelper"
+  "sourceLanguage": "en",
+  "strings": {
+    "CFBundleDisplayName": {
+      "comment": "Bundle display name",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder Menu Tools"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "速达"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder Menu Tools"
           }
         }
       }
     },
-    "CFBundleName" : {
-      "comment" : "Bundle name",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "MenuHelper"
+    "CFBundleName": {
+      "comment": "Bundle name",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder Menu Tools"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "速达"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finder Menu Tools"
           }
         }
       }
     },
-    "NSHumanReadableCopyright" : {
-      "comment" : "Copyright (human-readable)",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copyright ©️ 2023 YEXULEI. All rights reserved"
+    "NSHumanReadableCopyright": {
+      "comment": "Copyright (human-readable)",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright ©️ 2023 YEXULEI. All rights reserved"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copyright ©️ 2023 YEXULEI. All rights reserved 叶絮雷 版权所有"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright ©️ 2023 YEXULEI. All rights reserved 叶絮雷 版权所有"
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

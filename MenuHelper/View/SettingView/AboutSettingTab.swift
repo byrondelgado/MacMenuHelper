@@ -8,42 +8,22 @@
 import SwiftUI
 
 struct AboutSettingTab: View {
-    @State private var rainbow = false
-
     var body: some View {
-        VStack {
-            HStack {
-                Text("Made by")
-                Link(destination: URL(string: "https://github.com/Kyle-Ye")!) {
-                    ZStack {
-                        Image("Kyle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 45, height: 45)
-                            .clipShape(Circle())
-                            .opacity(0.5)
-                        Image("Kyle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 45, height: 45)
-                            .clipShape(Circle())
-                            .rainbowGlow()
-                            .opacity(rainbow ? 1 : 0)
-                            .animation(.default, value: rainbow)
-                    }
-                    .onHover { rainbow = $0 }
-                }
-                Text("with 🥰")
-            }
-            (
-                Text("Inspired by") +
-                    Text(try! AttributedString(markdown: " [SwiftyMenu](https://apps.apple.com/cn/app/swiftymenu/id1567748223) [Lex Tang](https://twitter.com/lexrus)"))
-            )
-            .font(.footnote)
+        VStack(spacing: 7) {
+            Text(appDisplayName)
+                .font(.title2.weight(.semibold))
+            Text("Unofficial maintenance fork")
+                .font(.subheadline)
+            Link("MenuHelper — original extension by Kyle-Ye", destination: URL(string: "https://github.com/Kyle-Ye/MenuHelper")!)
+            Link("Fork maintained by Byron Delgado", destination: URL(string: "https://github.com/byrondelgado/MacMenuHelper")!)
+            Link("Original inspiration: SwiftyMenu by Lex Tang", destination: URL(string: "https://github.com/lexrus/SwiftyMenu")!)
+                .font(.caption)
+            Text("FSL-1.1-MIT · Copyright 2023-2024 Kyle-Ye")
+                .font(.caption)
+            Text("Not affiliated with or endorsed by upstream.")
+                .font(.caption)
         }
-        .font(.title)
-        .padding(.vertical, 20)
-        .padding(.horizontal, 30)
+        .padding(12)
     }
 }
 

@@ -9,11 +9,17 @@ import Foundation
 import SwiftUI
 
 struct SupportWindow: View {
-    @State var store = Store()
-
     var body: some View {
-        CoffieStoreView(coffies: store.coffies) { _ in }
-            .environment(store)
+        VStack(spacing: 16) {
+            Text("Original extension by Kyle-Ye")
+                .font(.title2)
+            Text("Finder Menu Tools is an unofficial maintenance fork of MenuHelper. Credit for the original extension belongs to Kyle-Ye.")
+                .multilineTextAlignment(.center)
+            Link("Visit Kyle-Ye's MenuHelper repository", destination: URL(string: "https://github.com/Kyle-Ye/MenuHelper")!)
+            Text("This fork is distributed without charge and has no in-app purchases.")
+                .font(.footnote)
+        }
+        .padding(32)
     }
 }
 

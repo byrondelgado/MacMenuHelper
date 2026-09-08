@@ -40,7 +40,7 @@ struct AppMenuItemEditor: View {
             HStack {
                 Toggle(isOn: $item.enabled) {
                     Text(item.appName).font(.title)
-                }.toggleStyle(.button)
+                }.toggleStyle(.switch)
                 Spacer()
                 Image(nsImage: item.icon)
                     .resizable()

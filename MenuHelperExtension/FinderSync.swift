@@ -18,6 +18,8 @@ private let logger = Logger(subsystem: subsystem, category: "menu")
 class FinderSync: FIFinderSync {
     override init() {
         super.init()
+        // Populate the store before Finder requests its first contextual menu.
+        menuStore.refresh()
         channel.setup()
         logger.notice("FinderSync() launched from \(Bundle.main.bundlePath, privacy: .public)")
         FIFinderSyncController.default().directoryURLs = Set(folderStore.syncItems.map { URL(fileURLWithPath: $0.path) })
@@ -37,9 +39,9 @@ class FinderSync: FIFinderSync {
 
     // MARK: - Menu and toolbar item support
 
-    override var toolbarItemName: String { UserDefaults.group.showToolbarItemMenu ? String(localized: "MenuHelper") : "" }
+    override var toolbarItemName: String { UserDefaults.group.showToolbarItemMenu ? appDisplayName : "" }
 
-    override var toolbarItemToolTip: String { UserDefaults.group.showToolbarItemMenu ? String(localized: "MenuHelper Menu") : "" }
+    override var toolbarItemToolTip: String { UserDefaults.group.showToolbarItemMenu ? appDisplayName : "" }
 
     override var toolbarItemImage: NSImage {
         func defaultImage() -> NSImage {
@@ -47,7 +49,7 @@ class FinderSync: FIFinderSync {
             return NSImage()
         }
         if UserDefaults.group.showToolbarItemMenu {
-            return NSImage(systemSymbolName: "terminal", accessibilityDescription: "MenuHelper Menu") ?? defaultImage()
+            return NSImage(systemSymbolName: "terminal", accessibilityDescription: appDisplayName) ?? defaultImage()
         } else {
             return defaultImage()
         }
@@ -69,7 +71,7 @@ class FinderSync: FIFinderSync {
         }
         // Produce a menu for the extension.
         logger.notice("Create menu for \(menuKind.rawValue)")
-        let menu = NSMenu(title: "MenuHelper")
+        let menu = NSMenu(title: appDisplayName)
         menu.showsStateColumn = true
 
         let applicationMenu: NSMenu
@@ -115,7 +117,27 @@ class FinderSync: FIFinderSync {
             }
             actionMenu.addItem(menuItem)
         }
+
+        if !menu.items.isEmpty {
+            menu.addItem(.separator())
+        }
+        let settingsItem = NSMenuItem(
+            title: String(localized: "Finder Menu Tools Settings…"),
+            action: #selector(openAppSettings(_:)),
+            keyEquivalent: ""
+        )
+        settingsItem.target = self
+        menu.addItem(settingsItem)
         return menu
+    }
+
+    @objc
+    private func openAppSettings(_ sender: NSMenuItem) {
+        guard let url = URL(string: "finder-menu-tools://settings") else { return }
+        logger.notice("Requesting the Settings window")
+        if !NSWorkspace.shared.open(url) {
+            logger.error("Unable to open Finder Menu Tools settings")
+        }
     }
 
     @objc

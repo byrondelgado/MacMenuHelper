@@ -12,6 +12,8 @@ import SwiftUI
 private let logger = Logger(subsystem: subsystem, category: "main")
 
 struct ContentView: View {
+    @Environment(\.openSettings) private var openSettings
+
     private var enable: Bool {
         FIFinderSyncController.isExtensionEnabled
     }
@@ -22,8 +24,8 @@ struct ContentView: View {
 
     private var hint: LocalizedStringKey {
         enable
-        ? "You can turn off MenuHelper's extension in **System Settings -> Privacy & Security -> Extensions -> Added Extensions**"
-        : "You can turn on MenuHelper's extension in **System Settings -> Privacy & Security -> Extensions -> Added Extensions**"
+        ? "The Finder Menu Tools extension is enabled. You can manage it in System Settings."
+        : "Enable the Finder Menu Tools extension in System Settings to show its Finder commands."
     }
 
     var body: some View {
@@ -41,7 +43,7 @@ struct ContentView: View {
             } header: {
                 HStack {
                     Spacer()
-                    Image("icon")
+                    Image("ForkIcon")
                     Spacer()
                 }
             }
@@ -60,6 +62,15 @@ struct ContentView: View {
         }
         .formStyle(.grouped)
         .scrollBounceBehavior(.basedOnSize)
+        .handlesExternalEvents(preferring: ["finder-menu-tools://settings"], allowing: ["finder-menu-tools://settings"])
+        .onOpenURL { url in
+            guard url.scheme == "finder-menu-tools", url.host == "settings" else { return }
+            logger.notice("Opening Settings from Finder")
+            Task { @MainActor in
+                openSettings()
+                NSApplication.shared.activate(ignoringOtherApps: true)
+            }
+        }
     }
 }
 

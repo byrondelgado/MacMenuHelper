@@ -7,6 +7,7 @@
 
 import Foundation
 
+let appDisplayName = "Finder Menu Tools"
 let bundleIdentifier = Bundle.main.bundleIdentifier ?? ""
 var subsystem: String { bundleIdentifier }
 

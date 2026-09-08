@@ -20,7 +20,7 @@ struct AcknowledgementsWindow: View {
             .swiftCollections,
             .acknowKit,
         ],
-        header: "Menu Helper is made possible with following projects",
+        header: "Finder Menu Tools is a maintenance fork of MenuHelper by Kyle-Ye, built with the following projects.",
         footer: "Copyright ©️ 2023 YEXULEI. All rights reserved"
     )
 }

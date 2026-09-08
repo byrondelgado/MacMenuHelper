@@ -13,7 +13,7 @@ struct FolderSettingTab: View {
 
     var body: some View {
         Form {
-            // openSection
+            openSection
             syncSection
         }
         .formStyle(.grouped)
@@ -37,15 +37,15 @@ struct FolderSettingTab: View {
             }
             List {
                 ForEach(store.bookmarkItems) { item in
-                    HStack {
-                        Image(systemName: "folder")
-                        Text(item.path)
+                    folderRow(path: item.path) {
+                        guard let index = store.bookmarkItems.firstIndex(where: { $0.id == item.id }) else { return }
+                        store.deleteBookmarkItems(offsets: IndexSet(integer: index))
                     }
                 }
                 .onDelete { store.deleteBookmarkItems(offsets: $0) }
             }
         } header: {
-            Text("User Seleted Directories")
+            Text("User Selected Directories")
         } footer: {
             VStack {
                 HStack {
@@ -102,9 +102,9 @@ struct FolderSettingTab: View {
             }
             List {
                 ForEach(store.syncItems) { item in
-                    HStack {
-                        Image(systemName: "folder")
-                        Text(item.path)
+                    folderRow(path: item.path) {
+                        guard let index = store.syncItems.firstIndex(where: { $0.id == item.id }) else { return }
+                        store.deleteSyncItems(offsets: IndexSet(integer: index))
                     }
                 }
                 .onDelete { store.deleteSyncItems(offsets: $0) }
@@ -137,6 +137,23 @@ struct FolderSettingTab: View {
                 .font(.caption)
                 Spacer()
             }
+        }
+    }
+
+    private func folderRow(path: String, remove: @escaping () -> Void) -> some View {
+        HStack {
+            Image(systemName: "folder")
+            Text(path)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .help(path)
+            Spacer()
+            Button(action: remove) {
+                Image(systemName: "minus.circle")
+            }
+            .buttonStyle(.borderless)
+            .help("Remove this folder from the list")
+            .accessibilityLabel(Text("Remove \(path)"))
         }
     }
 }

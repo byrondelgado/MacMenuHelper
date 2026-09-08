@@ -52,7 +52,7 @@ class MenuHelperUITestsLaunchTests: XCTestCase {
     func testAcknowledgementsWindowScreenShot() throws {
         let app = XCUIApplication()
         app.launch()
-        let url = try XCTUnwrap(URL(string: "menu-helper://acknowledgements"))
+        let url = try XCTUnwrap(URL(string: "finder-menu-tools://acknowledgements"))
         NSWorkspace.shared.open(url)
         let attachment = XCTAttachment(screenshot: app.windows.firstMatch.screenshot())
         attachment.name = "Acknowledgements Window"
@@ -63,7 +63,7 @@ class MenuHelperUITestsLaunchTests: XCTestCase {
     func testSuppportWindowScreenShot() throws {
         let app = XCUIApplication()
         app.launch()
-        let url = try XCTUnwrap(URL(string: "menu-helper://support"))
+        let url = try XCTUnwrap(URL(string: "finder-menu-tools://support"))
         NSWorkspace.shared.open(url)
         sleep(1)
         let supportWindow = app.windows.firstMatch

@@ -15,10 +15,14 @@ struct AppMenuItemView: View {
     var body: some View {
         HStack {
             Image(nsImage: item.icon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
             Toggle(isOn: $item.enabled) {
                 Text(item.name)
             }
-            .toggleStyle(.button)
+            .toggleStyle(.switch)
+            .help("Show \(item.name) in Finder menus")
         }
         .contextMenu {
             Button {
