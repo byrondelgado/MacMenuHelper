@@ -15,6 +15,21 @@ repository retains the name `MacMenuHelper`; the downloadable app has its own
 name and icon. Please direct issues with this fork to
 [this repository](https://github.com/byrondelgado/MacMenuHelper/issues).
 
+## A quick look
+
+**Ready in Finder.** Check that the extension is enabled and jump straight to
+its settings.
+
+<img src="docs/screenshots/welcome.jpg" alt="Finder Menu Tools welcome window showing the enabled extension and links to settings" width="600">
+
+| Choose your apps | Set up everyday file actions |
+| --- | --- |
+| <img src="docs/screenshots/application-settings.jpg" alt="Application settings with Warp and Visual Studio Code enabled, and Terminal and Xcode disabled" width="420"> | <img src="docs/screenshots/copy-and-file-settings.jpg" alt="General settings for copying paths and choosing a new file name and extension" width="420"> |
+| Enable each app independently to choose which commands appear in Finder. | Choose how paths are copied and set defaults for new files. |
+
+Screenshots show version 4.0.2 on macOS 26. No personal files, account details
+or home-directory paths are shown.
+
 ## What this fork changes
 
 - Open Settings directly from the Finder menu.
