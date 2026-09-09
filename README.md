@@ -17,15 +17,41 @@ name and icon. Please direct issues with this fork to
 
 ## A quick look
 
-**Ready in Finder.** Check that the extension is enabled and jump straight to
-its settings.
+**Your tools, right inside Finder.** Open files and folders in Warp or Visual
+Studio Code, copy paths, create files and open Settings from the toolbar menu.
 
-<img src="docs/screenshots/welcome.jpg" alt="Finder Menu Tools welcome window showing the enabled extension and links to settings" width="600">
+<p align="center">
+  <a href="docs/screenshots/finder-toolbar-menu.png"><img src="docs/screenshots/finder-toolbar-menu.png" alt="Finder toolbar menu showing Warp, Visual Studio Code, Copy Path, file actions and Settings" width="1000"></a>
+</p>
 
-| Choose your apps | Set up everyday file actions |
-| --- | --- |
-| <img src="docs/screenshots/application-settings.jpg" alt="Application settings with Warp and Visual Studio Code enabled, and Terminal and Xcode disabled" width="420"> | <img src="docs/screenshots/copy-and-file-settings.jpg" alt="General settings for copying paths and choosing a new file name and extension" width="420"> |
-| Enable each app independently to choose which commands appear in Finder. | Choose how paths are copied and set defaults for new files. |
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Right-click for quick access</strong>
+      <p>Use your enabled commands from a file or folder's context menu.</p>
+      <a href="docs/screenshots/finder-context-menu.png"><img src="docs/screenshots/finder-context-menu.png" alt="Finder context menu with Open in Visual Studio Code highlighted, alongside Warp and file actions" width="420"></a>
+    </td>
+    <td width="50%" valign="top">
+      <strong>Ready in Finder</strong>
+      <p>Check that the extension is enabled and jump straight to its settings.</p>
+      <a href="docs/screenshots/welcome.jpg"><img src="docs/screenshots/welcome.jpg" alt="Finder Menu Tools welcome window showing the enabled extension and links to settings" width="420"></a>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Choose your apps</strong>
+      <p>Enable each app independently to choose which commands appear in Finder.</p>
+      <a href="docs/screenshots/application-settings.jpg"><img src="docs/screenshots/application-settings.jpg" alt="Application settings with Warp and Visual Studio Code enabled, and Terminal and Xcode disabled" width="420"></a>
+    </td>
+    <td width="50%" valign="top">
+      <strong>Set up everyday file actions</strong>
+      <p>Choose how paths are copied and set defaults for new files.</p>
+      <a href="docs/screenshots/copy-and-file-settings.jpg"><img src="docs/screenshots/copy-and-file-settings.jpg" alt="General settings for copying paths and choosing a new file name and extension" width="420"></a>
+    </td>
+  </tr>
+</table>
+
+Click any screenshot to view it at full size.
 
 Screenshots show version 4.0.2 on macOS 26. No personal files, account details
 or home-directory paths are shown.
