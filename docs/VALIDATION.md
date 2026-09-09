@@ -49,7 +49,17 @@ round-trips, scope lifetime, action identity and immutable menu snapshots.
 The universal build succeeded, and the installed app and extension passed the
 exact-entitlement and hardened-runtime verification.
 
-The v4.0.2 candidate was installed for end-to-end verification. The Mac was locked
-before the new Finder command dispatch and explicit Settings target could be
-checked in the UI. Publication is held pending that final check. Earlier UI
-coverage above refers to v4.0.1 and should not be read as new-version coverage.
+End-to-end checks completed on 9 September 2026 against the installed v4.0.2
+candidate using an isolated temporary directory:
+
+- Copy Path returned the exact path for a file containing a space and for the
+  current folder with no file selected.
+- The Visual Studio Code menu command opened the selected test file in VS Code.
+- The explicitly targeted Settings shortcut opened the Settings window with the
+  app initially closed and with it already running.
+- New File displayed the expected File exists error and preserved an existing
+  sentinel file byte for byte. With an unused destination, it created an empty
+  file with mode 0600 and left the sentinel unchanged.
+
+These checks complete the UI verification previously blocked by the locked Mac.
+The platform and distribution coverage limits above still apply.

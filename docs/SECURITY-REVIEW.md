@@ -41,8 +41,10 @@ files. Cases cover existing data, symlinks, hard links, traversal, invalid URLs,
 file modes, concurrent creation, shell round-trips, command substitution, balanced
 scope ownership, invalid action indexes, exact item identity and menu snapshots.
 
-The full universal build, deployed entitlements, nested signatures, included
-licences, ZIP integrity and published asset digests are checked separately. See
+Finder UI verification completed on 9 September 2026 for the new dispatch,
+Settings routing, file/folder copying and both successful and refused file
+creation. The full universal build, deployed entitlements, nested signatures,
+included licences, ZIP integrity and published asset digests are checked separately. See
 [VALIDATION.md](VALIDATION.md) for UI coverage and platform limits.
 
 References: [Apple open(2) flags](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/open.2.html),
